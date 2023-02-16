@@ -27,10 +27,13 @@ export class ViewComponent implements OnInit {
   message: string = '';
   isDisabled = true;
   records: any[] = [];
+  keeprecords: any[] = [];
+  searchRecord: any[] = [];
   optionsType: string[] = ['carro', 'moto'];
   typeButton: number = 1;
   showType = false;
   vehicles: Vehicle[] = [];
+  one: string = '';
 
   get option(): number {
     return this.parkingService.option;
@@ -52,6 +55,10 @@ export class ViewComponent implements OnInit {
         this.typeButton = 1;
         this.generateMessage('New vehicle saved and parked');
       } else if (data === Responses.EXISTS) {
+        this.createRecord(plate);
+        this.isDisabled = true;
+        this.typeButton = 1;
+        this.showType = false;
         this.generateMessage('Vehicle already exists');
       } else if (data === Responses.FAILED) {
         this.generateMessage('Save failed');
@@ -71,8 +78,13 @@ export class ViewComponent implements OnInit {
       const vehicle = this.vehicles.find(
         (vehicle) => vehicle.plate === this.plate
       );
-      console.log('this.record', this.records);
-      
+
+      this.searchRecord = this.vehicles.filter((vehicle) => vehicle.plate === this.plate);
+
+      if(this.searchRecord.length > 0){
+        this.generateMessage('Plate already exists');
+      }
+
       const record = this.records.find(vehicle => vehicle.vehicleId.plate === this.plate);
       if (vehicle) {
         this.typeButton = 2;
@@ -90,7 +102,7 @@ export class ViewComponent implements OnInit {
         this.showType = false;
         this.generateMessage('Vehicle already parked');
       }
-      
+
     }
   }
 
@@ -104,6 +116,7 @@ export class ViewComponent implements OnInit {
   getRecords(): void {
     this.parkingService.getRecords().subscribe((data) => {
       this.records = data.filter((record) => record.parked === true);
+      this.keeprecords = data.filter((record) => record.parked === false);
     });
   }
 
@@ -117,9 +130,10 @@ export class ViewComponent implements OnInit {
     this.parkingService.createRecord(plate).subscribe((data) => {
       if (data === Responses.RECORD_CREATED) {
         this.generateMessage('Record created');
+        this.getVehicles();
+        this.getRecords();
         this.plate = '';
         this.isDisabled = true;
-        this.getRecords();
         this.parkingService.option = 2;
       } else if (data === Responses.ALREADY_PARKED) {
         this.generateMessage('Vehicle already parked');
@@ -163,7 +177,7 @@ export class ViewComponent implements OnInit {
       } else if (data === Responses.UPDATE_NOT_FOUND) {
         this.generateMessage('Update not found');
       } else if (data === Responses.UPDATE_FAILED) {
-        this.generateMessage('update failed');
+        this.generateMessage('Update failed');
       }
     });
   }
