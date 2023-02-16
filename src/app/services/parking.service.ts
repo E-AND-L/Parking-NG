@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Vehicle } from '../models/vehicle.model';
+import { Record, Vehicle } from '../models/parking.model';
 
 @Injectable({
   providedIn: 'root',
@@ -20,9 +20,9 @@ export class ParkingService {
 
   constructor(private http: HttpClient) {}
 
-  getRecords(): Observable<any[]> {
+  getRecords(): Observable<Record[]> {
     const url = `${this.apiUrl}/api/records`;
-    return this.http.get<any[]>(url);
+    return this.http.get<Record[]>(url);
   }
 
   getVehicle(): Observable<Vehicle[]> {
@@ -41,6 +41,19 @@ export class ParkingService {
 
   createRecord(plate: string): Observable<string> {
     const url = `${this.apiUrl}/api/records`;
-    return this.http.post<string>(url, { responseType: 'text' as 'json' });
+    return this.http.post<string>(
+      url,
+      { plate },
+      { responseType: 'text' as 'json' }
+    );
+  }
+
+  updateRecord(id: string): Observable<string> {
+    const url = `${this.apiUrl}/api/records`;
+    return this.http.put<string>(
+      url,
+      { id },
+      { responseType: 'text' as 'json' }
+    );
   }
 }

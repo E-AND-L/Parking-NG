@@ -1,11 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { Vehicle } from 'src/app/models/vehicle.model';
+import { Vehicle } from 'src/app/models/parking.model';
 import { ParkingService } from 'src/app/services/parking.service';
 
 enum Responses {
   OK = 'vehicle saved',
   EXISTS = 'vehicle already exists',
   FAILED = 'save failed',
+  ALREADY_PARKED = 'vehicle already parked',
+  RECORD_FAILED = 'save failed',
+  RECORD_CREATED = 'record created',
+  VEHICLE_NOT_FOUND = 'vehicle not found',
+  VEHICLE_NOT_PARKED = 'vehicle is not parked',
+  UPDATE_SUCCESS = 'update success',
+  UPDATE_NOT_FOUND = 'update not found',
+  UPDATE_FAILED = 'update failed',
 }
 
 @Component({
@@ -38,8 +46,11 @@ export class ViewComponent implements OnInit {
   registerVehicle(plate: string, type: string): void {
     this.parkingService.registerVehicle(plate, type).subscribe((data) => {
       if (data === Responses.OK) {
-        this.plate = '';
-        this.generateMessage('Vehicle saved');
+        this.createRecord(plate);
+        this.showType = false;
+        this.isDisabled = true;
+        this.typeButton = 1;
+        this.generateMessage('New vehicle saved and parked');
       } else if (data === Responses.EXISTS) {
         this.generateMessage('Vehicle already exists');
       } else if (data === Responses.FAILED) {
@@ -60,6 +71,9 @@ export class ViewComponent implements OnInit {
       const vehicle = this.vehicles.find(
         (vehicle) => vehicle.plate === this.plate
       );
+      console.log('this.record', this.records);
+      
+      const record = this.records.find(vehicle => vehicle.vehicleId.plate === this.plate);
       if (vehicle) {
         this.typeButton = 2;
         this.isDisabled = false;
@@ -69,6 +83,14 @@ export class ViewComponent implements OnInit {
         this.isDisabled = false;
         this.typeButton = 1;
       }
+
+      if (record) {
+        this.typeButton = 3;
+        this.isDisabled = false;
+        this.showType = false;
+        this.generateMessage('Vehicle already parked');
+      }
+      
     }
   }
 
@@ -91,5 +113,58 @@ export class ViewComponent implements OnInit {
     });
   }
 
-  createRecord(plate: string): void {}
+  createRecord(plate: string): void {
+    this.parkingService.createRecord(plate).subscribe((data) => {
+      if (data === Responses.RECORD_CREATED) {
+        this.generateMessage('Record created');
+        this.plate = '';
+        this.isDisabled = true;
+        this.getRecords();
+        this.parkingService.option = 2;
+      } else if (data === Responses.ALREADY_PARKED) {
+        this.generateMessage('Vehicle already parked');
+      } else if (data === Responses.RECORD_FAILED) {
+        this.generateMessage('Save failed');
+      } else if (data === Responses.VEHICLE_NOT_FOUND) {
+        this.generateMessage('Vehicle not found');
+      }
+    });
+  }
+
+  updateRecord(id: string): void {
+    this.parkingService.updateRecord(id).subscribe((data) => {
+      if (data === Responses.UPDATE_SUCCESS) {
+        this.generateMessage('Update success');
+        this.getRecords();
+        this.plate = '';
+        this.typeButton = 1;
+      } else if (data === Responses.VEHICLE_NOT_PARKED) {
+        this.generateMessage('Vehicle is not parked');
+      } else if (data === Responses.UPDATE_NOT_FOUND) {
+        this.generateMessage('Update not found');
+      } else if (data === Responses.UPDATE_FAILED) {
+        this.generateMessage('update failed');
+      }
+    });
+  }
+
+  deleteRecord(plate: string): void {
+    const newVehicleId = (this.records.find((record) => record.vehicleId.plate === plate)).id;
+
+    this.parkingService.updateRecord(newVehicleId).subscribe((data) => {
+      if (data === Responses.UPDATE_SUCCESS) {
+        this.generateMessage('Update success');
+        this.getRecords();
+        this.plate = '';
+        this.typeButton = 1;
+        this.isDisabled = true;
+      } else if (data === Responses.VEHICLE_NOT_PARKED) {
+        this.generateMessage('Vehicle is not parked');
+      } else if (data === Responses.UPDATE_NOT_FOUND) {
+        this.generateMessage('Update not found');
+      } else if (data === Responses.UPDATE_FAILED) {
+        this.generateMessage('update failed');
+      }
+    });
+  }
 }

@@ -28,26 +28,34 @@
     <div class="mb-3">
       <div class="col-auto">
         <button
-        *ngIf="typeButton === 1"
+          *ngIf="typeButton === 1"
           (click)="registerVehicle(plate, type)"
           type="submit"
           class="btn btn-primary mb-3"
           [disabled]="isDisabled"
         >
-          Create Vehicle
+          Create Vehicle and Record
         </button>
         <button
-        *ngIf="typeButton === 2"
-        (click)="createRecord(plate)"
+          *ngIf="typeButton === 2"
+          (click)="createRecord(plate)"
+          type="submit"
+          class="btn btn-primary mb-3"
+          [disabled]="isDisabled"
+        >
+          Create Record
+        </button>
+        <button
+        *ngIf="typeButton === 3"
+        (click)="deleteRecord(plate)"
         type="submit"
-        class="btn btn-primary mb-3"
+        class="btn btn-danger mb-3"
         [disabled]="isDisabled"
       >
-        Create Record
+        Delete Record
       </button>
       </div>
     </div>
-    {{vehicles | json}}
   </form>
   <div *ngIf="message" class="alert alert-primary" role="alert">
     {{ message }}
@@ -68,12 +76,12 @@
     </thead>
     <tbody>
       <tr *ngFor="let item of records; index as i">
-        <th scope="row">{{i + 1}}</th>
-        <td>{{item.vehicleId.plate}}</td>
-        <td>{{item.vehicleId.type | titlecase}}</td>
-        <td>{{item.parked ? "Active" : "Inactive"}}</td>
-        <td>{{item.entryDate | date }}</td>
-        <td><button class="btn btn-danger btn-sm">Delete</button></td>
+        <th scope="row">{{ i + 1 }}</th>
+        <td>{{ item.vehicleId.plate }}</td>
+        <td>{{ item.vehicleId.type | titlecase }}</td>
+        <td>{{ item.parked ? "Active" : "Inactive" }}</td>
+        <td>{{ item.entryDate | date }}</td>
+        <td><button (click)="updateRecord(item.id)" class="btn btn-danger btn-sm">Delete</button></td>
       </tr>
     </tbody>
   </table>
