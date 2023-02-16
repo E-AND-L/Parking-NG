@@ -1,88 +1,104 @@
-<ng-container *ngIf="option == 1">
-  <!-- input de placa -->
-  <!-- select de carro moto -->
-  <!-- boton de registrar -->
+<ng-container *ngIf="option == 1" class="position-relative">
   <form class="w-100">
     <div class="mb-3">
       <label class="form-label">Plate</label>
-      <input
-        (keyup)="onKey($event)"
-        [(ngModel)]="plate"
-        [ngModelOptions]="{ standalone: true }"
-        type="text"
-        class="form-control"
-      />
+      <input (keyup)="onKey($event)" [(ngModel)]="plate" [ngModelOptions]="{ standalone: true }" type="text"
+        class="form-control" />
     </div>
     <div *ngIf="showType" class="mb-3">
       <label class="form-label">Type</label>
-      <select
-        [(ngModel)]="type"
-        [ngModelOptions]="{ standalone: true }"
-        class="form-select"
-        aria-label="Default select example"
-      >
+      <select [(ngModel)]="type" [ngModelOptions]="{ standalone: true }" class="form-select"
+        aria-label="Default select example">
         <option value="carro">Carro</option>
         <option value="moto">Moto</option>
       </select>
     </div>
     <div class="mb-3">
       <div class="col-auto">
-        <button
-          *ngIf="typeButton === 1"
-          (click)="registerVehicle(plate, type)"
-          type="submit"
-          class="btn btn-primary mb-3"
-          [disabled]="isDisabled"
-        >
+        <button *ngIf="typeButton === 1" (click)="registerVehicle(plate, type)" type="submit"
+          class="btn btn-primary mb-3" [disabled]="isDisabled">
           Create Vehicle and Record
         </button>
-        <button
-          *ngIf="typeButton === 2"
-          (click)="createRecord(plate)"
-          type="submit"
-          class="btn btn-primary mb-3"
-          [disabled]="isDisabled"
-        >
+        <button *ngIf="typeButton === 2" (click)="createRecord(plate)" type="submit" class="btn btn-primary mb-3"
+          [disabled]="isDisabled">
           Create Record
         </button>
-        <button
-        *ngIf="typeButton === 3"
-        (click)="deleteRecord(plate)"
-        type="submit"
-        class="btn btn-danger mb-3"
-        [disabled]="isDisabled"
-      >
-        Delete Record
-      </button>
+        <table class="table" *ngIf="typeButton === 2">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Plate</th>
+              <th scope="col">Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of searchRecord; index as i">
+              <th scope="row">{{ i + 1 }}</th>
+              <td>{{ item.plate }}</td>
+              <td>{{ item.type | titlecase }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <button *ngIf="typeButton === 3" (click)="deleteRecord(plate)" type="submit" class="btn btn-danger mb-3"
+          [disabled]="isDisabled">
+          Delete Record
+        </button>
       </div>
     </div>
   </form>
-  <div *ngIf="message" class="alert alert-primary" role="alert">
+  <div *ngIf="message" class="custom-alert alert alert-primary position-absolute" role="alert">
     {{ message }}
   </div>
 </ng-container>
 
 <ng-container *ngIf="option == 2">
-  <table class="table">
-    <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Plate</th>
-        <th scope="col">Type</th>
-        <th scope="col">Status</th>
-        <th scope="col">Entry date</th>
-        <th scope="col">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of records; index as i">
-        <th scope="row">{{ i + 1 }}</th>
-        <td>{{ item.vehicleId.plate }}</td>
-        <td>{{ item.vehicleId.type | titlecase }}</td>
-        <td>{{ item.parked ? "Active" : "Inactive" }}</td>
-        <td>{{ item.entryDate | date }}</td>
-        <td><button (click)="updateRecord(item.id)" class="btn btn-danger btn-sm">Delete</button></td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="container-tres">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Plate</th>
+          <th scope="col">Type</th>
+          <th scope="col">Status</th>
+          <th scope="col">Entry date</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of records; index as i">
+          <th scope="row">{{ i + 1 }}</th>
+          <td>{{ item.vehicleId.plate }}</td>
+          <td>{{ item.vehicleId.type | titlecase }}</td>
+          <td>{{ item.parked ? "Active" : "Inactive" }}</td>
+          <td>{{ item.entryDate | date: 'medium' }}</td>
+          <td><button (click)="updateRecord(item.id)" class="btn btn-danger btn-sm">Exit</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="option == 3">
+  <div class="container-tres">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Plate</th>
+          <th scope="col">Type</th>
+          <th scope="col">Entry date</th>
+          <th scope="col">Exit date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of keeprecords; index as i">
+          <th scope="row">{{ i + 1 }}</th>
+          <td>{{ item.vehicleId.plate }}</td>
+          <td>{{ item.vehicleId.type | titlecase }}</td>
+          <td>{{ item.entryDate |date: 'medium' }}</td>
+          <td>{{ item.exitDate | date: 'medium' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </ng-container>
