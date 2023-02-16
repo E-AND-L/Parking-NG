@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Vehicle } from 'src/app/models/vehicle.model';
 import { ParkingService } from 'src/app/services/parking.service';
 
 enum Responses {
@@ -19,6 +20,9 @@ export class ViewComponent implements OnInit {
   isDisabled = true;
   records: any[] = [];
   optionsType: string[] = ['carro', 'moto'];
+  typeButton: number = 1;
+  showType = false;
+  vehicles: Vehicle[] = [];
 
   get option(): number {
     return this.parkingService.option;
@@ -28,6 +32,7 @@ export class ViewComponent implements OnInit {
 
   ngOnInit(): void {
     this.getRecords();
+    this.getVehicles();
   }
 
   registerVehicle(plate: string, type: string): void {
@@ -46,9 +51,24 @@ export class ViewComponent implements OnInit {
   onKey(event: any): void {
     let length = event.target.value.length;
     if (length !== 6) {
+      this.isDisabled = true;
+      this.typeButton = 1;
+      this.showType = false;
       this.generateMessage('Plate must have 6 characters');
     } else {
-      this.isDisabled = false;
+      // Validate if my plate is in the array of vehicles
+      const vehicle = this.vehicles.find(
+        (vehicle) => vehicle.plate === this.plate
+      );
+      if (vehicle) {
+        this.typeButton = 2;
+        this.isDisabled = false;
+        this.showType = false;
+      } else {
+        this.showType = true;
+        this.isDisabled = false;
+        this.typeButton = 1;
+      }
     }
   }
 
@@ -64,4 +84,12 @@ export class ViewComponent implements OnInit {
       this.records = data.filter((record) => record.parked === true);
     });
   }
+
+  getVehicles(): void {
+    this.parkingService.getVehicle().subscribe((data) => {
+      this.vehicles = data;
+    });
+  }
+
+  createRecord(plate: string): void {}
 }

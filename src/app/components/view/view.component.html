@@ -13,7 +13,7 @@
         class="form-control"
       />
     </div>
-    <div class="mb-3">
+    <div *ngIf="showType" class="mb-3">
       <label class="form-label">Type</label>
       <select
         [(ngModel)]="type"
@@ -28,6 +28,7 @@
     <div class="mb-3">
       <div class="col-auto">
         <button
+        *ngIf="typeButton === 1"
           (click)="registerVehicle(plate, type)"
           type="submit"
           class="btn btn-primary mb-3"
@@ -35,8 +36,18 @@
         >
           Create Vehicle
         </button>
+        <button
+        *ngIf="typeButton === 2"
+        (click)="createRecord(plate)"
+        type="submit"
+        class="btn btn-primary mb-3"
+        [disabled]="isDisabled"
+      >
+        Create Record
+      </button>
       </div>
     </div>
+    {{vehicles | json}}
   </form>
   <div *ngIf="message" class="alert alert-primary" role="alert">
     {{ message }}
